@@ -1,31 +1,35 @@
 import requests
-from tqdm import tqdm
+import json
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 
 BASE_URL = 'https://www.sima-land.ru'
 
+output_csv = open("../data/raw/goods_1_50.csv", "w", encoding="UTF-8")
+output_csv.write("name\tcategory\tprice\trating\turl\tdescription\n")
 
-output_csv = open("goods_1_50.csv", "w", encoding="UTF-8")
-output_csv.write("name\tcategory\tprice\turl\tdescription\n")
+for page_num in tqdm(range(1, 751), desc="Page processed"):
+    response = requests.get(f"{BASE_URL}/iapi/product-list/items/v1/default-view/?page={page_num}&sort=rating"
+                            "&currency=RUB&per-page=20&category_id=690&page_type=category&f=null&with_adult=1"
+                            "&modifier_limit=5&settlement_id=27490597",
+                            timeout=60).text
 
-for page_num in tqdm(range(1, 751), desc="Page parsed"):
-    html_doc = requests.get(f"https://www.sima-land.ru/tvorchestvo/p={page_num}/?c_id=690&is_catalog=1", timeout=60).text
-    soup_per_page = BeautifulSoup(html_doc, 'html.parser')
+    response_dict = json.loads(response)
 
-    hrefs = map(
-        lambda x: BASE_URL + x['href'],
-        soup_per_page.find_all("a", class_="odeaio PfpX13")
-    )
+    for item in response_dict['items']:
 
-    for href in hrefs:
+        name = item['name']
+
         try:
+            price = str(item['prices']['main'])
+            rating = str(item['rating']['value'])
+            url = BASE_URL + item['url']
+
             soup_per_item = BeautifulSoup(
-                requests.get(href, timeout=60).text,
+                requests.get(url, timeout=60).text,
                 "html.parser"
             )
-
-            name = soup_per_item.find("h1", class_="_9EfqO").text
 
             description_tag = soup_per_item.find("div", class_="WD7t_o iBWXrD")
             if description_tag is not None:
@@ -40,27 +44,22 @@ for page_num in tqdm(range(1, 751), desc="Page parsed"):
             else:
                 description = ""
 
-            price_tag = soup_per_item.find("div", class_="EQXPxB").find("span", class_="C1_ch0 X8KFZ9").text
-            price = "".join(
-                filter(
-                    lambda x: x.isdigit(),
-                    list(price_tag)
-                )
-            )
-
             category = soup_per_item.find("div", class_="FCOHHE UHKXSB").find_all("span", class_="IPwfOk")[2].find("a").text
 
-            output_csv.write("\t".join([name, category, price, href, description]) + "\n")
+            output_csv.write("\t".join([name, category, price, rating, url, description]) + "\n")
 
         except Exception as e:
-            print("Bad request:", href)
-            print("Page:", page_num)
+            print()
+            print("Bad Request")
+            print(item)
+            print(e)
+            print()
 
-    if page_num % 50 == 0:
+    if page_num % 50 == 0 and page_num != 750:
         output_csv.close()
         output_csv = open(f"../data/raw/goods_{page_num + 1}_{page_num + 50}.csv",
                           "w",
                           encoding="UTF-8")
-        output_csv.write("name\tcategory\tprice\turl\tdescription\n")
+        output_csv.write("name\tcategory\tprice\trating\turl\tdescription\n")
 
 output_csv.close()
