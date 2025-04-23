@@ -1,0 +1,12 @@
+python-telegram-bot
+requests
+beautifulsoup4
+tqdm
+pandas
+langchain
+langchain_huggingface
+typing
+sqlite3
+torch
+langchain-community
+faiss-cpu

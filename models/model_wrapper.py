@@ -32,6 +32,5 @@ class ModelWrapperBase:
         response : str
             Model response.
 
-
         """
         pass
