@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 
-file_path = "../data/raw/"
+file_path = "../../data/raw/"
 
 df_list = []
 for file in os.listdir(file_path):

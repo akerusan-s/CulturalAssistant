@@ -1,6 +1,7 @@
 import sqlite3
 import json
 from langchain.vectorstores import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
 
 
 def load_user_db(path='users_messages.db'):
@@ -13,6 +14,7 @@ def load_user_db(path='users_messages.db'):
         user_id INTEGER NOT NULL,
         user_message TEXT NOT NULL,
         assistant_message TEXT NOT NULL,
+        rag_addition TEXT NOT NULL,
         cleared INTEGER NOT NULL
     )
     ''')
@@ -21,7 +23,10 @@ def load_user_db(path='users_messages.db'):
     return connection
 
 
-def load_faiss_index(embeddings, path="faiss_index"):
+def load_faiss_index(path="faiss_index"):
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    )
     db = FAISS.load_local(
         path, embeddings, allow_dangerous_deserialization=True
     )

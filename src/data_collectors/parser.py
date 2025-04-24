@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 BASE_URL = 'https://www.sima-land.ru'
 
-output_csv = open("../data/raw/goods_1_50.csv", "w", encoding="UTF-8")
+output_csv = open("../../data/raw/goods_1_50.csv", "w", encoding="UTF-8")
 output_csv.write("name\tcategory\tprice\trating\turl\tdescription\n")
 
 for page_num in tqdm(range(1, 751), desc="Page processed"):
@@ -31,7 +31,10 @@ for page_num in tqdm(range(1, 751), desc="Page processed"):
                 "html.parser"
             )
 
-            description_tag = soup_per_item.find("div", class_="WD7t_o iBWXrD")
+            description_tag = soup_per_item.find(
+                "div",
+                class_="WD7t_o iBWXrD"
+            )
             if description_tag is not None:
                 description = " ".join(
                     list(
@@ -44,7 +47,13 @@ for page_num in tqdm(range(1, 751), desc="Page processed"):
             else:
                 description = ""
 
-            category = soup_per_item.find("div", class_="FCOHHE UHKXSB").find_all("span", class_="IPwfOk")[2].find("a").text
+            category = soup_per_item.find(
+                "div",
+                class_="FCOHHE UHKXSB"
+            ).find_all(
+                "span",
+                class_="IPwfOk"
+            )[2].find("a").text
 
             output_csv.write("\t".join([name, category, price, rating, url, description]) + "\n")
 
@@ -57,7 +66,7 @@ for page_num in tqdm(range(1, 751), desc="Page processed"):
 
     if page_num % 50 == 0 and page_num != 750:
         output_csv.close()
-        output_csv = open(f"../data/raw/goods_{page_num + 1}_{page_num + 50}.csv",
+        output_csv = open(f"../../data/raw/goods_{page_num + 1}_{page_num + 50}.csv",
                           "w",
                           encoding="UTF-8")
         output_csv.write("name\tcategory\tprice\trating\turl\tdescription\n")
