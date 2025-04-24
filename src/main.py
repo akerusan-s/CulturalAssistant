@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from loaders import load_user_db, load_faiss_index, load_config
-from ..models.model_deepseek_v1 import DeepSeekWrapper
+from ..models.model_saiga import SaigaWrapper
 
 
 TOKEN = os.environ.get("TOKEN")
@@ -17,7 +17,7 @@ config = load_config("../configs/config.json")
 embeddings_for_faiss = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 user_messages_db = load_user_db(config["chat_db_path"])
 faiss_db = load_faiss_index(embeddings_for_faiss, config["faiss_db_path"])
-model = DeepSeekWrapper(config["system_prompt"])
+model = SaigaWrapper(config["system_prompt"])
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

@@ -10,3 +10,4 @@ sqlite3
 torch
 langchain-community
 faiss-cpu
+bitsandbytes
