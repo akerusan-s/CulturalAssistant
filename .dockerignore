@@ -1,0 +1,26 @@
+# Git-related
+.git
+.gitignore
+
+# Python-related
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Data
+data/raw/
+data/processed/*.csv
+src/data_collectors/
+
+# Notebooks
+notebooks/
+
+# IDE-related
+.idea/  # PyCharm
+
+# Docker-related
+Dockerfile
+.dockerignore

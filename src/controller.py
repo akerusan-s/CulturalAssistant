@@ -72,11 +72,15 @@ class BotController:
         dialog_from_messages_history.append({"role": "user", "content": str(user_text)})
         rag_items_history.extend(
             [
-                str(doc.page_content) + " Ссылка на товар: " + doc.metadata["url"] for doc in
+                str(doc.page_content) + " Ссылка на товар: " + str(doc.metadata["url"]) for doc in
                 self.rag_data.similarity_search(user_text, k=5)
             ]
         )
-        rag_info = "Выбранные товары:\n" + "\n".join(rag_items_history)         # rag items join and format
+
+        # rag items join and format + count of messages
+        rag_info = "Выбранные товары:\n" \
+                   + "\n".join(rag_items_history) \
+                   + f"\nВсего сообщений от тебя: {len(dialog_from_messages_history) - 1} \n"
 
         answer = self.model.get_response(
             dialog_from_messages_history,
