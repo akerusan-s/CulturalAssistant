@@ -7,17 +7,17 @@ from controller import BotController
 from ..models.model_saiga import SaigaWrapper
 
 
-TOKEN = os.environ.get("TOKEN")
+TOKEN = os.environ.get("TOKEN")                             # telegram bot token
 if not TOKEN:
     raise ValueError("Telegram token missing")
 
-config = load_config("../configs/config.json")
+config = load_config("../configs/config.json")              # config with paths, system prompt and hello-message for bot
 
-user_messages_db = load_user_db(config["chat_db_path"])
-faiss_db = load_faiss_index(config["faiss_db_path"])
-model = SaigaWrapper(config["system_prompt"])
+user_messages_db = load_user_db(config["chat_db_path"])     # text2text model in ModelWrapperBase class format
+faiss_db = load_faiss_index(config["faiss_db_path"])        # RAG vector store (FAISS)
+model = SaigaWrapper(config["system_prompt"])               # database with users interactions information (sqlite)
 
-bot_controller = BotController(model, user_messages_db, faiss_db)
+bot_controller = BotController(model, user_messages_db, faiss_db)       # bot controller (see: controller.py)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -36,9 +36,12 @@ async def bot_response(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def clear_context(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """ Clear assistant context """
+    """
+    Clear assistant context.
+    User messages seen in dialog will not be processed during answer generation.
+    """
     bot_controller.clear_context(str(update.message.from_user.id))
-    await update.message.reply_text("Контекст обновлён")
+    await update.message.reply_text("Контекст обновлён.")
 
 
 def main() -> None:
