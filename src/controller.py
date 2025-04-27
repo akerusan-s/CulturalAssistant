@@ -1,4 +1,6 @@
 from typing import List, Tuple, Dict
+from collections import OrderedDict
+
 from ..models.model_wrapper import ModelWrapperBase
 
 
@@ -44,7 +46,7 @@ class BotController:
             dialog_from_messages.append({"role": "assistant", "content": str(assist_mes)})
             rag_items.extend(rag_addition.split('\n'))
 
-        rag_items = list(set(rag_items))    # drop duplicated rag items
+        rag_items = list(OrderedDict.fromkeys(rag_items))  # drop duplicated rag items with order
 
         return dialog_from_messages, rag_items
 
@@ -68,7 +70,7 @@ class BotController:
         # history messages and items
         dialog_from_messages_history, rag_items_history = self.load_dialog_and_rag_history(user_id)
 
-        # current query addition
+        # current query addition to the history
         dialog_from_messages_history.append({"role": "user", "content": str(user_text)})
         rag_items_history.extend(
             [
@@ -77,17 +79,20 @@ class BotController:
             ]
         )
 
-        # rag items join and format + count of messages
-        rag_info = "Выбранные товары:\n" \
-                   + "\n".join(rag_items_history) \
-                   + f"\nВсего сообщений от тебя: {len(dialog_from_messages_history) - 1} \n"
+        # only last 10 items of RAG are involved to avoid context (memory) overload
+        # a good place to implement reranker
+        rag_items_history = rag_items_history[-10:]
+
+        rag_info = "Выбранные товары:\n"\
+                   + "\n".join(rag_items_history)\
+                   + f"\n Количество сообщений от тебя: {(len(dialog_from_messages_history) - 1) // 2} \n"
 
         answer = self.model.get_response(
             dialog_from_messages_history,
             rag_info
         )
 
-        # update history of interactions
+        # update history of interactions in database
         self.create_note_in_source(user_id, user_text, answer, rag_items_history)
         return answer
 
