@@ -54,7 +54,8 @@ def load_faiss_index(path="faiss_index") -> FAISS:
     """
 
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+        model_name="BAAI/bge-m3",
+        model_kwargs={'device': "cpu"}
     )
     db = FAISS.load_local(
         path, embeddings, allow_dangerous_deserialization=True
@@ -77,6 +78,10 @@ def load_config(path: str = "config.json") -> Dict:
         Loaded json config.
     """
 
-    with open(path, 'r', encoding="UTF-8") as f:
-        config = json.load(f)
+    with open(path, 'r', encoding="UTF-8") as cnfg:
+        config = json.load(cnfg)
+
+    with open(config['system_prompt_path'], 'r', encoding="UTF-8") as prmt:
+        config['system_prompt'] = prmt.read()
+
     return config

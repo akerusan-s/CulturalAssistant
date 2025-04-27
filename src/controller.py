@@ -70,12 +70,18 @@ class BotController:
         # history messages and items
         dialog_from_messages_history, rag_items_history = self.load_dialog_and_rag_history(user_id)
 
-        # current query addition to the history
+        # current message addition to the history
         dialog_from_messages_history.append({"role": "user", "content": str(user_text)})
+
+        # RAG query is a query to vector store
+        # contains all messages from user
+        rag_query = "\n".join(
+            [message["content"] for message in filter(lambda x: x["role"] == "user", dialog_from_messages_history)]
+        )
         rag_items_history.extend(
             [
-                str(doc.page_content) + " Ссылка на товар: " + str(doc.metadata["url"]) for doc in
-                self.rag_data.similarity_search(user_text, k=5)
+                f"Название товара: {str(doc.metadata['name'])}. Ссылка на товар: {str(doc.metadata['url'])}" for doc in
+                self.rag_data.similarity_search(rag_query, k=5)
             ]
         )
 
