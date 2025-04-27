@@ -1,8 +1,6 @@
-# Git-related
 .git
 .gitignore
 
-# Python-related
 __pycache__/
 *.pyc
 *.pyo
@@ -10,17 +8,13 @@ __pycache__/
 dist/
 build/
 
-# Data
 data/raw/
 data/processed/*.csv
 src/data_collectors/
 
-# Notebooks
 notebooks/
 
-# IDE-related
-.idea/  # PyCharm
+.idea/
 
-# Docker-related
 Dockerfile
 .dockerignore
